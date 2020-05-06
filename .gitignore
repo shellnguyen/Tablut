@@ -58,3 +58,6 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+Tablut_Project/Library/
+Tablut_Project/Temp/
+Tablut_Project/Logs/
