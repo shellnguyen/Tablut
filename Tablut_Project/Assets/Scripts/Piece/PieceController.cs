@@ -29,8 +29,6 @@ public class PieceController : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
-        m_Renderer = this.GetComponent<Renderer>();
-        m_Renderer.material.color = m_PieceColor;
         m_IsSelected = false;
     }
 
@@ -57,5 +55,13 @@ public class PieceController : MonoBehaviour
     public void MoveTo(Vector3 position)
     {
         this.transform.position = position;
+    }
+
+    public void SetProperty(bool isAttacker, sbyte positionOnBoard)
+    {
+        m_IsAttacker = isAttacker;
+        m_PositionOnBoard = positionOnBoard;
+        m_Renderer = this.GetComponent<Renderer>();
+        m_Renderer.material.color = m_IsAttacker ? Color.black : Color.white;
     }
 }

@@ -11,6 +11,7 @@ public class GridController : MonoBehaviour
     {
         m_Size = 1.0f;
         GenerateGrid();
+        m_GameController.GeneretePieces();
     }
 
     private void OnMouseDown()
