@@ -76,6 +76,21 @@ public sealed class Utilities
         Debug.DrawRay(ray.origin, ray.direction * 100, Color.cyan, 30.0f);
         return null;
     }
+
+    public bool GetRaycastHit(Camera cam, Vector3 position, out RaycastHit hit)
+    {
+        Ray ray = cam.ScreenPointToRay(position);
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            Debug.DrawRay(ray.origin, ray.direction * 100, Color.cyan, 30.0f);
+            return true;
+        }
+
+        Debug.DrawRay(ray.origin, ray.direction * 100, Color.cyan, 30.0f);
+
+        return false;
+    }
     //
 
     //Bitwise support
