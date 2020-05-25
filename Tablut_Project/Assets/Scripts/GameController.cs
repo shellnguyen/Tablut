@@ -58,10 +58,12 @@ public class GameController : MonoBehaviour
                 //Top
                 GameObject attacker = Instantiate(m_PiecePrefab, m_MoveMarks[i].transform.position, Quaternion.identity, m_PieceObjects.transform);
                 attacker.GetComponent<PieceController>().SetProperty(true, (sbyte)i);
+                m_AttackerPos.Set(i, true);
 
                 //Left
                 attacker = Instantiate(m_PiecePrefab, m_MoveMarks[i * 9].transform.position, Quaternion.identity, m_PieceObjects.transform);
                 attacker.GetComponent<PieceController>().SetProperty(true, (sbyte)i);
+                m_AttackerPos.Set(i * 9, true);
 
                 for (int j = 1; j < 9; ++j)
                 {
@@ -85,13 +87,17 @@ public class GameController : MonoBehaviour
                     {
                         //Set pieces as Attacker
                         piece1.GetComponent<PieceController>().SetProperty(true, (sbyte)topOffset);
+                        m_AttackerPos.Set(topOffset, true);
                         piece2.GetComponent<PieceController>().SetProperty(true, (sbyte)leftOffset);
+                        m_AttackerPos.Set(leftOffset, true);
                     }
                     else
                     {
                         //Set pieces as Defender
                         piece1.GetComponent<PieceController>().SetProperty(false, (sbyte)(topOffset));
+                        m_DefenderPos.Set(topOffset, true);
                         piece2.GetComponent<PieceController>().SetProperty(false, (sbyte)(leftOffset));
+                        m_DefenderPos.Set(leftOffset, true);
                     }
                 }
             }
@@ -101,18 +107,22 @@ public class GameController : MonoBehaviour
                 //Top
                 GameObject piece = Instantiate(m_PiecePrefab, m_MoveMarks[i].transform.position, Quaternion.identity, m_PieceObjects.transform);
                 piece.GetComponent<PieceController>().SetProperty(true, (sbyte)i);
+                m_AttackerPos.Set(i, true);
 
                 //Opposite (bottom)
                 piece = Instantiate(m_PiecePrefab, m_MoveMarks[i + 72].transform.position, Quaternion.identity, m_PieceObjects.transform);
                 piece.GetComponent<PieceController>().SetProperty(true, (sbyte)(i + 72));
+                m_AttackerPos.Set(i + 72, true);
 
                 //Left
                 piece = Instantiate(m_PiecePrefab, m_MoveMarks[i * 9].transform.position, Quaternion.identity, m_PieceObjects.transform);
                 piece.GetComponent<PieceController>().SetProperty(true, (sbyte)(i * 9));
+                m_AttackerPos.Set(i * 9, true);
 
                 //Right
                 piece = Instantiate(m_PiecePrefab, m_MoveMarks[i * 9 + 8].transform.position, Quaternion.identity, m_PieceObjects.transform);
                 piece.GetComponent<PieceController>().SetProperty(true, (sbyte)(i * 9 + 8));
+                m_AttackerPos.Set(i * 9 + 8, true);
 
                 //
             }
