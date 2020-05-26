@@ -57,8 +57,9 @@ public class PieceController : MonoBehaviour
         this.transform.position = position;
     }
 
-    public void SetProperty(bool isAttacker, sbyte positionOnBoard)
+    public void SetProperty(bool isAttacker, sbyte positionOnBoard, GameController controller)
     {
+        m_GameController = controller;
         m_IsAttacker = isAttacker;
         m_PositionOnBoard = positionOnBoard;
         m_Renderer = this.GetComponent<Renderer>();
