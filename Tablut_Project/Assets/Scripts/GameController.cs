@@ -8,6 +8,7 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameObject m_MarksObject;
     [SerializeField] private GameObject m_MarkPrefab;
     [SerializeField] private GameObject[] m_MoveMarks;
+    [SerializeField] private List<sbyte> m_CurrentActiveMarks;
     //
 
     //Piece object
@@ -38,6 +39,7 @@ public class GameController : MonoBehaviour
     private void Awake()
     {
         m_MoveMarks = new GameObject[81];
+        m_CurrentActiveMarks = new List<sbyte>();
         m_AttackerPos = new BitArray(81, false);
         m_DefenderPos = new BitArray(81, false);
         m_CurrentSelected = null;
@@ -139,11 +141,19 @@ public class GameController : MonoBehaviour
 
     public void CheckPossibleMove(sbyte position)
     {
+        //Hide old possible moves
+        for(int i = 0; i < m_CurrentActiveMarks.Count; ++i)
+        {
+            m_MoveMarks[m_CurrentActiveMarks[i]].SetActive(false);
+        }
+        m_CurrentActiveMarks.Clear();
+
+        //Check move
         BitArray allPieces = m_AttackerPos.Or(m_DefenderPos);
-        //TraverseLeft((sbyte)(position - 1), allPieces);
-        //TraverseRight((sbyte)(position + 1), allPieces);
-        //TraverseTop((sbyte)(position - 9), allPieces);
-        //TraverseDown((sbyte)(position + 9), allPieces);
+        TraverseLeft((sbyte)(position - 1), allPieces);
+        TraverseRight((sbyte)(position + 1), allPieces);
+        TraverseTop((sbyte)(position - 9), allPieces);
+        TraverseDown((sbyte)(position + 9), allPieces);
     }
 
     private sbyte TraverseLeft(sbyte nextLeftPos, BitArray bitboard)
@@ -156,6 +166,7 @@ public class GameController : MonoBehaviour
         if(nextLeftPos % 9 == 0)
         {
             m_MoveMarks[nextLeftPos].SetActive(true);
+            m_CurrentActiveMarks.Add(nextLeftPos);
             return 0;
         }
 
@@ -166,6 +177,7 @@ public class GameController : MonoBehaviour
 
         m_MoveMarks[nextLeftPos].SetActive(true);
 
+        m_CurrentActiveMarks.Add(nextLeftPos);
         return TraverseLeft((sbyte)(nextLeftPos - 1), bitboard);
     }
 
@@ -183,29 +195,30 @@ public class GameController : MonoBehaviour
 
         m_MoveMarks[nextRightPos].SetActive(true);
 
+        m_CurrentActiveMarks.Add(nextRightPos);
         return TraverseRight((sbyte)(nextRightPos + 1), bitboard);
     }
 
     private sbyte TraverseTop(sbyte nextTopPos, BitArray bitboard)
     {
-        if(nextTopPos - 9 < 0)
+        if (nextTopPos < 0)
         {
             return 0;
         }
 
-        if(bitboard.Get(nextTopPos))
+        if (bitboard.Get(nextTopPos))
         {
             return 0;
         }
 
         m_MoveMarks[nextTopPos].SetActive(true);
-
+        m_CurrentActiveMarks.Add(nextTopPos);
         return TraverseTop((sbyte)(nextTopPos - 9), bitboard);
     }
 
     private sbyte TraverseDown(sbyte nextDownPos, BitArray bitboard)
     {
-        if (nextDownPos + 9 > 81)
+        if (nextDownPos > 80)
         {
             return 0;
         }
@@ -216,7 +229,7 @@ public class GameController : MonoBehaviour
         }
 
         m_MoveMarks[nextDownPos].SetActive(true);
-
+        m_CurrentActiveMarks.Add(nextDownPos);
         return TraverseDown((sbyte)(nextDownPos + 9), bitboard);
     }
 }
