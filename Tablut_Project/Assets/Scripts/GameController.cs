@@ -38,8 +38,8 @@ public class GameController : MonoBehaviour
     private void Awake()
     {
         m_MoveMarks = new GameObject[81];
-        m_AttackerPos = new BitArray(81);
-        m_DefenderPos = new BitArray(81);
+        m_AttackerPos = new BitArray(81, false);
+        m_DefenderPos = new BitArray(81, false);
         m_CurrentSelected = null;
         m_IsAttackerTurn = true;
     }
@@ -134,11 +134,89 @@ public class GameController : MonoBehaviour
     {
         m_MoveMarks[index] = Instantiate(m_MarkPrefab, position, Quaternion.Euler(90.0f, 0.0f, 0.0f));
         m_MoveMarks[index].transform.SetParent(m_MarksObject.transform);
-        //m_MoveMarks[index].SetActive(false);
+        m_MoveMarks[index].SetActive(false);
     }
 
     public void CheckPossibleMove(sbyte position)
     {
-        
+        BitArray allPieces = m_AttackerPos.Or(m_DefenderPos);
+        //TraverseLeft((sbyte)(position - 1), allPieces);
+        //TraverseRight((sbyte)(position + 1), allPieces);
+        //TraverseTop((sbyte)(position - 9), allPieces);
+        //TraverseDown((sbyte)(position + 9), allPieces);
+    }
+
+    private sbyte TraverseLeft(sbyte nextLeftPos, BitArray bitboard)
+    {
+        if(nextLeftPos < 0)
+        {
+            return 0;
+        }
+
+        if(nextLeftPos % 9 == 0)
+        {
+            m_MoveMarks[nextLeftPos].SetActive(true);
+            return 0;
+        }
+
+        if(bitboard.Get(nextLeftPos))
+        {
+            return 0;
+        }
+
+        m_MoveMarks[nextLeftPos].SetActive(true);
+
+        return TraverseLeft((sbyte)(nextLeftPos - 1), bitboard);
+    }
+
+    private sbyte TraverseRight(sbyte nextRightPos, BitArray bitboard)
+    {
+        if (nextRightPos % 9 == 0 || nextRightPos > 80)
+        {
+            return 0;
+        }
+
+        if (bitboard.Get(nextRightPos))
+        {
+            return 0;
+        }
+
+        m_MoveMarks[nextRightPos].SetActive(true);
+
+        return TraverseRight((sbyte)(nextRightPos + 1), bitboard);
+    }
+
+    private sbyte TraverseTop(sbyte nextTopPos, BitArray bitboard)
+    {
+        if(nextTopPos - 9 < 0)
+        {
+            return 0;
+        }
+
+        if(bitboard.Get(nextTopPos))
+        {
+            return 0;
+        }
+
+        m_MoveMarks[nextTopPos].SetActive(true);
+
+        return TraverseTop((sbyte)(nextTopPos - 9), bitboard);
+    }
+
+    private sbyte TraverseDown(sbyte nextDownPos, BitArray bitboard)
+    {
+        if (nextDownPos + 9 > 81)
+        {
+            return 0;
+        }
+
+        if (bitboard.Get(nextDownPos))
+        {
+            return 0;
+        }
+
+        m_MoveMarks[nextDownPos].SetActive(true);
+
+        return TraverseDown((sbyte)(nextDownPos + 9), bitboard);
     }
 }

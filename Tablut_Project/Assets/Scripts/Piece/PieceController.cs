@@ -49,6 +49,7 @@ public class PieceController : MonoBehaviour
             }
 
             m_GameController.CurrentSelected = this;
+            m_GameController.CheckPossibleMove(this.m_PositionOnBoard);
         }
     }
 
@@ -59,6 +60,7 @@ public class PieceController : MonoBehaviour
 
     public void SetProperty(bool isAttacker, sbyte positionOnBoard, GameController controller)
     {
+        //this.gameObject.name = "Piece" + positionOnBoard;
         m_GameController = controller;
         m_IsAttacker = isAttacker;
         m_PositionOnBoard = positionOnBoard;
