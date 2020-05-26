@@ -52,6 +52,7 @@ public class GameController : MonoBehaviour
         
     }
 
+    #region Generate functions
     public void GeneretePieces()
     {
         for(int i = 3; i <= 5; ++i)
@@ -65,7 +66,7 @@ public class GameController : MonoBehaviour
 
                 //Left
                 attacker = Instantiate(m_PiecePrefab, m_MoveMarks[i * 9].transform.position, Quaternion.identity, m_PieceObjects.transform);
-                attacker.GetComponent<PieceController>().SetProperty(true, (sbyte)i, this);
+                attacker.GetComponent<PieceController>().SetProperty(true, (sbyte)(i * 9), this);
                 m_AttackerPos.Set(i * 9, true);
 
                 for (int j = 1; j < 9; ++j)
@@ -130,6 +131,10 @@ public class GameController : MonoBehaviour
                 //
             }
         }
+
+        //Set both bitboard of Attacker and Defender center cell to 1 since they can use center piece to corner and capture enemy
+        m_AttackerPos.Set(40, true);
+        m_DefenderPos.Set(40, true);
     }
 
     public void GenerateMoveMarks(int index, Vector3 position)
@@ -138,15 +143,13 @@ public class GameController : MonoBehaviour
         m_MoveMarks[index].transform.SetParent(m_MarksObject.transform);
         m_MoveMarks[index].SetActive(false);
     }
+    #endregion
 
+    #region Check possible moves functions
     public void CheckPossibleMove(sbyte position)
     {
         //Hide old possible moves
-        for(int i = 0; i < m_CurrentActiveMarks.Count; ++i)
-        {
-            m_MoveMarks[m_CurrentActiveMarks[i]].SetActive(false);
-        }
-        m_CurrentActiveMarks.Clear();
+        RemoveOldPossibleMoves();
 
         //Check move
         BitArray allPieces = m_AttackerPos.Or(m_DefenderPos);
@@ -154,6 +157,15 @@ public class GameController : MonoBehaviour
         TraverseRight((sbyte)(position + 1), allPieces);
         TraverseTop((sbyte)(position - 9), allPieces);
         TraverseDown((sbyte)(position + 9), allPieces);
+    }
+
+    private void RemoveOldPossibleMoves()
+    {
+        for (int i = 0; i < m_CurrentActiveMarks.Count; ++i)
+        {
+            m_MoveMarks[m_CurrentActiveMarks[i]].SetActive(false);
+        }
+        m_CurrentActiveMarks.Clear();
     }
 
     private sbyte TraverseLeft(sbyte nextLeftPos, BitArray bitboard)
@@ -231,5 +243,33 @@ public class GameController : MonoBehaviour
         m_MoveMarks[nextDownPos].SetActive(true);
         m_CurrentActiveMarks.Add(nextDownPos);
         return TraverseDown((sbyte)(nextDownPos + 9), bitboard);
+    }
+    #endregion
+
+    public void MovePiece(Vector3 newPosition)
+    {
+        int row = Mathf.RoundToInt(newPosition.x);
+        int columns = Mathf.RoundToInt(newPosition.z + 8); //Because in world pos, columns start at -8
+
+        sbyte index = (sbyte)((row * 9 + columns) * (-1));
+        if(m_CurrentActiveMarks.Contains(index) && index != 40) //
+        {
+            if(m_CurrentSelected.IsAttacker)
+            {
+                m_AttackerPos.Set(m_CurrentSelected.PositionOnBoard, false);
+                m_AttackerPos.Set(index, true);
+            }
+            else
+            {
+                m_DefenderPos.Set(m_CurrentSelected.PositionOnBoard, false);
+                m_DefenderPos.Set(index, true);
+            }
+
+            m_CurrentSelected.MoveTo(newPosition, index);
+        }
+
+        RemoveOldPossibleMoves();
+        m_CurrentSelected.IsSelected = false;
+        m_CurrentSelected = null;
     }
 }

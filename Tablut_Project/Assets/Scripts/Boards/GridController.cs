@@ -22,7 +22,7 @@ public class GridController : MonoBehaviour
             RaycastHit hit;
             if (Utilities.Instance.GetRaycastHit(Camera.main, Input.mousePosition, out hit))
             {
-                m_GameController.CurrentSelected.MoveTo(GetNearestPointOnGrid(hit.point));
+                m_GameController.MovePiece(GetNearestPointOnGrid(hit.point));
             }
         }
     }

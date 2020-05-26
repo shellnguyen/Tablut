@@ -24,6 +24,32 @@ public class PieceController : MonoBehaviour
         }
     }
 
+    public bool IsAttacker
+    {
+        get
+        {
+            return m_IsAttacker;
+        }
+
+        set
+        {
+            m_IsAttacker = value;
+        }
+    }
+
+    public sbyte PositionOnBoard
+    {
+        get
+        {
+            return m_PositionOnBoard;
+        }
+
+        set
+        {
+            m_PositionOnBoard = value;
+        }
+    }
+
     //[SerializeField] BitArray
 
     // Start is called before the first frame update
@@ -53,18 +79,20 @@ public class PieceController : MonoBehaviour
         }
     }
 
-    public void MoveTo(Vector3 position)
+    public void MoveTo(Vector3 position, sbyte positionOnBoard)
     {
         this.transform.position = position;
+        m_PositionOnBoard = positionOnBoard;
+
     }
 
     public void SetProperty(bool isAttacker, sbyte positionOnBoard, GameController controller)
     {
-        //this.gameObject.name = "Piece" + positionOnBoard;
+        this.gameObject.name = "Piece" + positionOnBoard;
         m_GameController = controller;
         m_IsAttacker = isAttacker;
         m_PositionOnBoard = positionOnBoard;
         m_Renderer = this.GetComponent<Renderer>();
-        m_Renderer.material.color = m_IsAttacker ? Color.black : Color.white;
+        m_Renderer.material.color = IsAttacker ? Color.black : Color.white;
     }
 }
