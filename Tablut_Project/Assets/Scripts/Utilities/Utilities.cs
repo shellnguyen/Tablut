@@ -107,6 +107,17 @@ public sealed class Utilities
     }
     //
 
+    public void PrintBitArray(BitArray array)
+    {
+        string bits = "";
+        for(int i = 0; i < array.Count; ++i)
+        {
+            bits += i + "-" + array[i].ToString() + " ";
+        }
+
+        Debug.Log(bits);
+    }
+
     ////iTween functions
     //public void MoveToWithCallBack(GameObject target, Vector3 position, float time, string fnCallBackName)
     //{

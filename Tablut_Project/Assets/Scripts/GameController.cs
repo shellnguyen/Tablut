@@ -87,7 +87,7 @@ public class GameController : MonoBehaviour
                     //Left Center Column
                     GameObject piece2 = Instantiate(m_PiecePrefab, m_MoveMarks[leftOffset].transform.position, Quaternion.identity, m_PieceObjects.transform);
 
-                    if (j == 8 || j == 1)
+                    if (j == 8 || j == 1 || j == 7)
                     {
                         //Set pieces as Attacker
                         piece1.GetComponent<PieceController>().SetProperty(true, (sbyte)topOffset, this);
@@ -152,7 +152,8 @@ public class GameController : MonoBehaviour
         RemoveOldPossibleMoves();
 
         //Check move
-        BitArray allPieces = m_AttackerPos.Or(m_DefenderPos);
+        BitArray allPieces = new BitArray(m_AttackerPos);
+        allPieces.Or(m_DefenderPos);
         TraverseLeft((sbyte)(position - 1), allPieces);
         TraverseRight((sbyte)(position + 1), allPieces);
         TraverseTop((sbyte)(position - 9), allPieces);
