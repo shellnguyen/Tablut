@@ -14,6 +14,7 @@ public class GameController : MonoBehaviour
     //Piece object
     [SerializeField] private GameObject m_PiecePrefab;
     [SerializeField] private GameObject m_PieceObjects;
+    [SerializeField] private Dictionary<sbyte, PieceController> m_Pieces;
     //
 
     [SerializeField] private BitArray m_AttackerPos;
@@ -42,6 +43,7 @@ public class GameController : MonoBehaviour
         m_CurrentActiveMarks = new List<sbyte>();
         m_AttackerPos = new BitArray(81, false);
         m_DefenderPos = new BitArray(81, false);
+        m_Pieces = new Dictionary<sbyte, PieceController>(25);
         m_CurrentSelected = null;
         m_IsAttackerTurn = true;
     }
@@ -61,12 +63,15 @@ public class GameController : MonoBehaviour
             {
                 //Top
                 GameObject attacker = Instantiate(m_PiecePrefab, m_MoveMarks[i].transform.position, Quaternion.identity, m_PieceObjects.transform);
-                attacker.GetComponent<PieceController>().SetProperty(true, (sbyte)i, this);
+                m_Pieces.Add((sbyte)i, attacker.GetComponent<PieceController>());
+                m_Pieces[(sbyte)i].SetProperty(true, (sbyte)i, this);
+                
                 m_AttackerPos.Set(i, true);
 
                 //Left
                 attacker = Instantiate(m_PiecePrefab, m_MoveMarks[i * 9].transform.position, Quaternion.identity, m_PieceObjects.transform);
-                attacker.GetComponent<PieceController>().SetProperty(true, (sbyte)(i * 9), this);
+                m_Pieces.Add((sbyte)(i * 9), attacker.GetComponent<PieceController>());
+                m_Pieces[(sbyte)(i * 9)].SetProperty(true, (sbyte)(i * 9), this);
                 m_AttackerPos.Set(i * 9, true);
 
                 for (int j = 1; j < 9; ++j)
@@ -78,29 +83,33 @@ public class GameController : MonoBehaviour
                     {
                         //Center pieces
                         GameObject centerPiece = Instantiate(m_PiecePrefab, m_MoveMarks[topOffset].transform.position, Quaternion.identity, m_PieceObjects.transform);
-                        centerPiece.GetComponent<PieceController>().SetProperty(false, (sbyte)(topOffset), this);
+                        m_Pieces.Add((sbyte)(topOffset), centerPiece.GetComponent<PieceController>());
+                        m_Pieces[(sbyte)(topOffset)].SetProperty(false, (sbyte)(topOffset), this);
+                        m_Pieces[(sbyte)(topOffset)].IsKing = true;
                         continue;
                     }
                     //Top Center Column
                     GameObject piece1 = Instantiate(m_PiecePrefab, m_MoveMarks[topOffset].transform.position, Quaternion.identity, m_PieceObjects.transform);
+                    m_Pieces.Add((sbyte)(topOffset), piece1.GetComponent<PieceController>());
 
                     //Left Center Column
                     GameObject piece2 = Instantiate(m_PiecePrefab, m_MoveMarks[leftOffset].transform.position, Quaternion.identity, m_PieceObjects.transform);
+                    m_Pieces.Add((sbyte)(leftOffset), piece2.GetComponent<PieceController>());
 
                     if (j == 8 || j == 1 || j == 7)
                     {
                         //Set pieces as Attacker
-                        piece1.GetComponent<PieceController>().SetProperty(true, (sbyte)topOffset, this);
+                        m_Pieces[(sbyte)(topOffset)].SetProperty(true, (sbyte)topOffset, this);
                         m_AttackerPos.Set(topOffset, true);
-                        piece2.GetComponent<PieceController>().SetProperty(true, (sbyte)leftOffset, this);
+                        m_Pieces[(sbyte)(leftOffset)].SetProperty(true, (sbyte)leftOffset, this);
                         m_AttackerPos.Set(leftOffset, true);
                     }
                     else
                     {
                         //Set pieces as Defender
-                        piece1.GetComponent<PieceController>().SetProperty(false, (sbyte)(topOffset), this);
+                        m_Pieces[(sbyte)(topOffset)].SetProperty(false, (sbyte)(topOffset), this);
                         m_DefenderPos.Set(topOffset, true);
-                        piece2.GetComponent<PieceController>().SetProperty(false, (sbyte)(leftOffset), this);
+                        m_Pieces[(sbyte)(leftOffset)].SetProperty(false, (sbyte)(leftOffset), this);
                         m_DefenderPos.Set(leftOffset, true);
                     }
                 }
@@ -110,22 +119,26 @@ public class GameController : MonoBehaviour
                 //Generate Attacker
                 //Top
                 GameObject piece = Instantiate(m_PiecePrefab, m_MoveMarks[i].transform.position, Quaternion.identity, m_PieceObjects.transform);
-                piece.GetComponent<PieceController>().SetProperty(true, (sbyte)i, this);
+                m_Pieces.Add((sbyte)i, piece.GetComponent<PieceController>());
+                m_Pieces[(sbyte)i].SetProperty(true, (sbyte)i, this);
                 m_AttackerPos.Set(i, true);
 
                 //Opposite (bottom)
                 piece = Instantiate(m_PiecePrefab, m_MoveMarks[i + 72].transform.position, Quaternion.identity, m_PieceObjects.transform);
-                piece.GetComponent<PieceController>().SetProperty(true, (sbyte)(i + 72), this);
+                m_Pieces.Add((sbyte)(i + 72), piece.GetComponent<PieceController>());
+                m_Pieces[(sbyte)(i + 72)].SetProperty(true, (sbyte)(i + 72), this);
                 m_AttackerPos.Set(i + 72, true);
 
                 //Left
                 piece = Instantiate(m_PiecePrefab, m_MoveMarks[i * 9].transform.position, Quaternion.identity, m_PieceObjects.transform);
-                piece.GetComponent<PieceController>().SetProperty(true, (sbyte)(i * 9), this);
+                m_Pieces.Add((sbyte)(i * 9), piece.GetComponent<PieceController>());
+                m_Pieces[(sbyte)(i * 9)].SetProperty(true, (sbyte)(i * 9), this);
                 m_AttackerPos.Set(i * 9, true);
 
                 //Right
                 piece = Instantiate(m_PiecePrefab, m_MoveMarks[i * 9 + 8].transform.position, Quaternion.identity, m_PieceObjects.transform);
-                piece.GetComponent<PieceController>().SetProperty(true, (sbyte)(i * 9 + 8), this);
+                m_Pieces.Add((sbyte)(i * 9 + 8), piece.GetComponent<PieceController>());
+                m_Pieces[(sbyte)(i * 9 + 8)].SetProperty(true, (sbyte)(i * 9 + 8), this);
                 m_AttackerPos.Set(i * 9 + 8, true);
 
                 //
@@ -133,7 +146,7 @@ public class GameController : MonoBehaviour
         }
 
         //Set both bitboard of Attacker and Defender center cell to 1 since they can use center piece to corner and capture enemy
-        m_AttackerPos.Set(40, true);
+        //m_AttackerPos.Set(40, true);
         m_DefenderPos.Set(40, true);
     }
 
@@ -152,8 +165,15 @@ public class GameController : MonoBehaviour
         RemoveOldPossibleMoves();
 
         //Check move
+        Debug.Log("m_AttackerPos");
+        Utilities.Instance.PrintBitArray(m_AttackerPos);
+        Debug.Log("m_DefenderPos");
+        Utilities.Instance.PrintBitArray(m_DefenderPos);
         BitArray allPieces = new BitArray(m_AttackerPos);
         allPieces.Or(m_DefenderPos);
+        Debug.Log("allPieces");
+        Utilities.Instance.PrintBitArray(allPieces);
+
         TraverseLeft((sbyte)(position - 1), allPieces);
         TraverseRight((sbyte)(position + 1), allPieces);
         TraverseTop((sbyte)(position - 9), allPieces);
@@ -171,6 +191,11 @@ public class GameController : MonoBehaviour
 
     private sbyte TraverseLeft(sbyte nextLeftPos, BitArray bitboard)
     {
+        if((nextLeftPos + 1) % 9 == 0)
+        {
+            return 0;
+        }
+
         if(nextLeftPos < 0)
         {
             return 0;
@@ -262,15 +287,79 @@ public class GameController : MonoBehaviour
             }
             else
             {
+                if(m_CurrentSelected.IsKing)
+                {
+                    m_AttackerPos.Set(40, true);
+                }
                 m_DefenderPos.Set(m_CurrentSelected.PositionOnBoard, false);
                 m_DefenderPos.Set(index, true);
             }
 
+            m_Pieces.Remove(m_CurrentSelected.PositionOnBoard);
             m_CurrentSelected.MoveTo(newPosition, index);
+            m_Pieces.Add(index, m_CurrentSelected);
         }
 
         RemoveOldPossibleMoves();
+        CheckCapturePiece(index);
         m_CurrentSelected.IsSelected = false;
         m_CurrentSelected = null;
+    }
+
+    private void CheckCapturePiece(sbyte position)
+    {
+        //Debug.Log("m_AttackerPos");
+        //Utilities.Instance.PrintBitArray(m_AttackerPos);
+        //Debug.Log("m_DefenderPos");
+        //Utilities.Instance.PrintBitArray(m_DefenderPos);
+        BitArray friendlyBoards;
+        BitArray enemyBoards;
+        if (m_CurrentSelected.IsAttacker)
+        {
+            friendlyBoards = m_AttackerPos;
+            enemyBoards = m_DefenderPos;
+        }
+        else
+        {
+            friendlyBoards = m_DefenderPos;
+            enemyBoards = m_AttackerPos;
+        }
+
+        //Debug.Log("FriendlyBoard");
+        //Utilities.Instance.PrintBitArray(friendlyBoards);
+        //Debug.Log("EnemyBoard");
+        //Utilities.Instance.PrintBitArray(enemyBoards);
+
+        //Check Top
+        if ((position - 18 > 0) && enemyBoards.Get(position - 9) && friendlyBoards.Get(position - 18))
+        {
+            enemyBoards.Set(position - 9, false);
+            m_Pieces[(sbyte)(position - 9)].OnBeingCaptured();
+            m_Pieces.Remove((sbyte)(position - 9));
+        }
+
+        //Check Down
+        if((position + 18 <= 80) && enemyBoards.Get(position + 9) && friendlyBoards.Get(position + 18))
+        {
+            enemyBoards.Set(position + 9, false);
+            m_Pieces[(sbyte)(position + 9)].OnBeingCaptured();
+            m_Pieces.Remove((sbyte)(position + 9));
+        }
+
+        //Check Left
+        if(((position - 1) % 9 != 0) && enemyBoards.Get(position - 1) && friendlyBoards.Get(position - 2))
+        {
+            enemyBoards.Set(position - 1, false);
+            m_Pieces[(sbyte)(position - 1)].OnBeingCaptured();
+            m_Pieces.Remove((sbyte)(position - 1));
+        }
+
+        //Check Right
+        if (((position + 2) % 9 != 0) && enemyBoards.Get(position + 1) && friendlyBoards.Get(position + 2))
+        {
+            enemyBoards.Set(position + 1, false);
+            m_Pieces[(sbyte)(position + 1)].OnBeingCaptured();
+            m_Pieces.Remove((sbyte)(position + 1));
+        }
     }
 }

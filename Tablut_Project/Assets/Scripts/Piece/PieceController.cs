@@ -9,6 +9,7 @@ public class PieceController : MonoBehaviour
     [SerializeField] private Color m_PieceColor;
     [SerializeField] private sbyte m_PositionOnBoard;
     [SerializeField] private bool m_IsAttacker;
+    [SerializeField] private bool m_IsKing;
     [SerializeField] private bool m_IsSelected;
 
     public bool IsSelected
@@ -50,7 +51,23 @@ public class PieceController : MonoBehaviour
         }
     }
 
-    //[SerializeField] BitArray
+    public bool IsKing
+    {
+        get
+        {
+            return m_IsKing;
+        }
+
+        set
+        {
+            m_IsKing = value;
+        }
+    }
+
+    private void Awake()
+    {
+        m_IsKing = false;
+    }
 
     // Start is called before the first frame update
     private void Start()
@@ -84,6 +101,11 @@ public class PieceController : MonoBehaviour
         this.transform.position = position;
         m_PositionOnBoard = positionOnBoard;
 
+    }
+
+    public void OnBeingCaptured()
+    {
+        Destroy(gameObject);
     }
 
     public void SetProperty(bool isAttacker, sbyte positionOnBoard, GameController controller)
