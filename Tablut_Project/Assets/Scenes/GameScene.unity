@@ -909,6 +909,7 @@ MonoBehaviour:
     type: 3}
   m_PieceObjects: {fileID: 1555710277}
   m_CurrentSelected: {fileID: 0}
+  m_TurnText: {fileID: 1102742085}
   IsAttackerTurn: 0
 --- !u!4 &2009668070
 Transform:
