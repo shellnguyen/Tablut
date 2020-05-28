@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class GameController : MonoBehaviour
 {
@@ -19,8 +20,12 @@ public class GameController : MonoBehaviour
 
     [SerializeField] private BitArray m_AttackerPos;
     [SerializeField] private BitArray m_DefenderPos;
-    [SerializeField] private bool m_IsAttackerTurn;
     [SerializeField] private PieceController m_CurrentSelected;
+
+    //Temp
+    [SerializeField] private TextMeshProUGUI m_TurnText;
+    //
+    public bool IsAttackerTurn;
 
     public PieceController CurrentSelected
     {
@@ -35,7 +40,6 @@ public class GameController : MonoBehaviour
         }
     }
 
-
     // Start is called before the first frame update
     private void Awake()
     {
@@ -45,13 +49,7 @@ public class GameController : MonoBehaviour
         m_DefenderPos = new BitArray(81, false);
         m_Pieces = new Dictionary<sbyte, PieceController>(25);
         m_CurrentSelected = null;
-        m_IsAttackerTurn = true;
-    }
-
-    // Update is called once per frame
-    private void Update()
-    {
-        
+        IsAttackerTurn = true;
     }
 
     #region Generate functions
@@ -272,6 +270,7 @@ public class GameController : MonoBehaviour
     }
     #endregion
 
+    #region Functions related to moving piece
     public void MovePiece(Vector3 newPosition)
     {
         int row = Mathf.RoundToInt(newPosition.x);
@@ -304,6 +303,9 @@ public class GameController : MonoBehaviour
         CheckCapturePiece(index);
         m_CurrentSelected.IsSelected = false;
         m_CurrentSelected = null;
+        IsAttackerTurn = !IsAttackerTurn;
+
+        m_TurnText.text = IsAttackerTurn ? "Attacker" : "Defender";
     }
 
     private void CheckCapturePiece(sbyte position)
@@ -329,37 +331,57 @@ public class GameController : MonoBehaviour
         //Utilities.Instance.PrintBitArray(friendlyBoards);
         //Debug.Log("EnemyBoard");
         //Utilities.Instance.PrintBitArray(enemyBoards);
-
+        sbyte positionToRemove = -1;
         //Check Top
         if ((position - 18 > 0) && enemyBoards.Get(position - 9) && friendlyBoards.Get(position - 18))
         {
-            enemyBoards.Set(position - 9, false);
-            m_Pieces[(sbyte)(position - 9)].OnBeingCaptured();
-            m_Pieces.Remove((sbyte)(position - 9));
+            positionToRemove = (sbyte)(position - 9);
+            //enemyBoards.Set(position - 9, false);
+            //m_Pieces[(sbyte)(position - 9)].OnBeingCaptured();
+            //m_Pieces.Remove((sbyte)(position - 9));
         }
 
         //Check Down
         if((position + 18 <= 80) && enemyBoards.Get(position + 9) && friendlyBoards.Get(position + 18))
         {
-            enemyBoards.Set(position + 9, false);
-            m_Pieces[(sbyte)(position + 9)].OnBeingCaptured();
-            m_Pieces.Remove((sbyte)(position + 9));
+            positionToRemove = (sbyte)(position + 9);
+            //enemyBoards.Set(position + 9, false);
+            //m_Pieces[(sbyte)(position + 9)].OnBeingCaptured();
+            //m_Pieces.Remove((sbyte)(position + 9));
         }
 
         //Check Left
-        if(((position - 1) % 9 != 0) && enemyBoards.Get(position - 1) && friendlyBoards.Get(position - 2))
+        if((position - 2 >= 0) && ((position - 1) % 9 != 0) && enemyBoards.Get(position - 1) && friendlyBoards.Get(position - 2))
         {
-            enemyBoards.Set(position - 1, false);
-            m_Pieces[(sbyte)(position - 1)].OnBeingCaptured();
-            m_Pieces.Remove((sbyte)(position - 1));
+            positionToRemove = (sbyte)(position - 1);
+            //enemyBoards.Set(position - 1, false);
+            //m_Pieces[(sbyte)(position - 1)].OnBeingCaptured();
+            //m_Pieces.Remove((sbyte)(position - 1));
         }
 
         //Check Right
         if (((position + 2) % 9 != 0) && enemyBoards.Get(position + 1) && friendlyBoards.Get(position + 2))
         {
-            enemyBoards.Set(position + 1, false);
-            m_Pieces[(sbyte)(position + 1)].OnBeingCaptured();
-            m_Pieces.Remove((sbyte)(position + 1));
+            positionToRemove = (sbyte)(position + 1);
+            //enemyBoards.Set(position + 1, false);
+            //m_Pieces[(sbyte)(position + 1)].OnBeingCaptured();
+            //m_Pieces.Remove((sbyte)(position + 1));
+        }
+
+        if(positionToRemove > -1)
+        {
+            if(positionToRemove == 40)
+            {
+                if(!m_Pieces.ContainsKey(positionToRemove))
+                {
+                    return;
+                }
+            }
+
+            enemyBoards.Set(positionToRemove, false);
+            m_Pieces[positionToRemove].OnBeingCaptured();
+            m_Pieces.Remove(positionToRemove);
         }
     }
+    #endregion
 }

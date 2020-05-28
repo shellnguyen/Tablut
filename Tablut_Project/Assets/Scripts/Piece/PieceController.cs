@@ -83,16 +83,19 @@ public class PieceController : MonoBehaviour
     private void OnMouseDown()
     {
         Debug.Log(gameObject.name);
-        if(!m_IsSelected)
+        if(m_GameController.IsAttackerTurn == m_IsAttacker)
         {
-            if(m_GameController.CurrentSelected)
+            if (!m_IsSelected)
             {
-                m_GameController.CurrentSelected.IsSelected = false;
-                m_GameController.CurrentSelected = null;
-            }
+                if (m_GameController.CurrentSelected)
+                {
+                    m_GameController.CurrentSelected.IsSelected = false;
+                    m_GameController.CurrentSelected = null;
+                }
 
-            m_GameController.CurrentSelected = this;
-            m_GameController.CheckPossibleMove(this.m_PositionOnBoard);
+                m_GameController.CurrentSelected = this;
+                m_GameController.CheckPossibleMove(this.m_PositionOnBoard);
+            }
         }
     }
 
