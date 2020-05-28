@@ -16,6 +16,7 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameObject m_PiecePrefab;
     [SerializeField] private GameObject m_PieceObjects;
     [SerializeField] private Dictionary<sbyte, PieceController> m_Pieces;
+    [SerializeField] private sbyte m_KingPosition;
     //
 
     [SerializeField] private BitArray m_AttackerPos;
@@ -50,6 +51,7 @@ public class GameController : MonoBehaviour
         m_Pieces = new Dictionary<sbyte, PieceController>(25);
         m_CurrentSelected = null;
         IsAttackerTurn = true;
+        m_KingPosition = 40;
     }
 
     #region Generate functions
@@ -163,14 +165,14 @@ public class GameController : MonoBehaviour
         RemoveOldPossibleMoves();
 
         //Check move
-        Debug.Log("m_AttackerPos");
-        Utilities.Instance.PrintBitArray(m_AttackerPos);
-        Debug.Log("m_DefenderPos");
-        Utilities.Instance.PrintBitArray(m_DefenderPos);
+        //Debug.Log("m_AttackerPos");
+        //Utilities.Instance.PrintBitArray(m_AttackerPos);
+        //Debug.Log("m_DefenderPos");
+        //Utilities.Instance.PrintBitArray(m_DefenderPos);
         BitArray allPieces = new BitArray(m_AttackerPos);
         allPieces.Or(m_DefenderPos);
-        Debug.Log("allPieces");
-        Utilities.Instance.PrintBitArray(allPieces);
+        //Debug.Log("allPieces");
+        //Utilities.Instance.PrintBitArray(allPieces);
 
         TraverseLeft((sbyte)(position - 1), allPieces);
         TraverseRight((sbyte)(position + 1), allPieces);
@@ -289,6 +291,7 @@ public class GameController : MonoBehaviour
                 if(m_CurrentSelected.IsKing)
                 {
                     m_AttackerPos.Set(40, true);
+                    m_KingPosition = index;
                 }
                 m_DefenderPos.Set(m_CurrentSelected.PositionOnBoard, false);
                 m_DefenderPos.Set(index, true);
@@ -331,57 +334,66 @@ public class GameController : MonoBehaviour
         //Utilities.Instance.PrintBitArray(friendlyBoards);
         //Debug.Log("EnemyBoard");
         //Utilities.Instance.PrintBitArray(enemyBoards);
-        sbyte positionToRemove = -1;
+        sbyte[] positionToRemove = { -1, -1, -1, -1 };
         //Check Top
         if ((position - 18 > 0) && enemyBoards.Get(position - 9) && friendlyBoards.Get(position - 18))
         {
-            positionToRemove = (sbyte)(position - 9);
-            //enemyBoards.Set(position - 9, false);
-            //m_Pieces[(sbyte)(position - 9)].OnBeingCaptured();
-            //m_Pieces.Remove((sbyte)(position - 9));
+            positionToRemove[0] = (sbyte)(position - 9);
         }
 
         //Check Down
         if((position + 18 <= 80) && enemyBoards.Get(position + 9) && friendlyBoards.Get(position + 18))
         {
-            positionToRemove = (sbyte)(position + 9);
-            //enemyBoards.Set(position + 9, false);
-            //m_Pieces[(sbyte)(position + 9)].OnBeingCaptured();
-            //m_Pieces.Remove((sbyte)(position + 9));
+            positionToRemove[1] = (sbyte)(position + 9);
         }
 
         //Check Left
         if((position - 2 >= 0) && ((position - 1) % 9 != 0) && enemyBoards.Get(position - 1) && friendlyBoards.Get(position - 2))
         {
-            positionToRemove = (sbyte)(position - 1);
-            //enemyBoards.Set(position - 1, false);
-            //m_Pieces[(sbyte)(position - 1)].OnBeingCaptured();
-            //m_Pieces.Remove((sbyte)(position - 1));
+            positionToRemove[2] = (sbyte)(position - 1);
         }
 
         //Check Right
         if (((position + 2) % 9 != 0) && enemyBoards.Get(position + 1) && friendlyBoards.Get(position + 2))
         {
-            positionToRemove = (sbyte)(position + 1);
-            //enemyBoards.Set(position + 1, false);
-            //m_Pieces[(sbyte)(position + 1)].OnBeingCaptured();
-            //m_Pieces.Remove((sbyte)(position + 1));
+            positionToRemove[3] = (sbyte)(position + 1);
         }
 
-        if(positionToRemove > -1)
+        for(int i = 0; i < positionToRemove.Length; ++i)
         {
-            if(positionToRemove == 40)
+            if (positionToRemove[i] > -1)
             {
-                if(!m_Pieces.ContainsKey(positionToRemove))
+                if(positionToRemove[i] == 40 && positionToRemove[i] != m_KingPosition)
                 {
-                    return;
+                    continue;
                 }
-            }
 
-            enemyBoards.Set(positionToRemove, false);
-            m_Pieces[positionToRemove].OnBeingCaptured();
-            m_Pieces.Remove(positionToRemove);
+                if (positionToRemove[i] == m_KingPosition)
+                {
+                    //Check when King is in Center Square or any adjacent square
+                    //The rule
+                    //when in center square, King is only captured when surround on all 4 sides
+                    //when in any 4 adjacent square next to Center, King is only captured when surround on 3 sides
+                    //when not in any of those positions, king is capture like other pieces (aka surround on 2 sides)
+                    if((m_KingPosition == 40 || m_KingPosition == 39 || m_KingPosition == 41 || m_KingPosition == 31 || m_KingPosition == 49))
+                    {
+                        if (!m_AttackerPos.Get(m_KingPosition - 1) || !m_AttackerPos.Get(m_KingPosition + 1) || !m_AttackerPos.Get(m_KingPosition - 9) || !m_AttackerPos.Get(m_KingPosition + 9))
+                        {
+                            continue;
+                        }
+                    }
+
+                    Debug.Log("King is capture. Attacker Win");
+                }
+
+
+                enemyBoards.Set(positionToRemove[i], false);
+                m_Pieces[positionToRemove[i]].OnBeingCaptured();
+                m_Pieces.Remove(positionToRemove[i]);
+            }
         }
+
+
     }
     #endregion
 }
