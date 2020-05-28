@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
+enum GameStatus
+{
+    Ongoing,
+    AttackerWin,
+    DefenderWin
+}
+
 public class GameController : MonoBehaviour
 {
     //Mark object
@@ -22,6 +29,7 @@ public class GameController : MonoBehaviour
     [SerializeField] private BitArray m_AttackerPos;
     [SerializeField] private BitArray m_DefenderPos;
     [SerializeField] private PieceController m_CurrentSelected;
+    [SerializeField] private GameStatus m_Status;
 
     //Temp
     [SerializeField] private TextMeshProUGUI m_TurnText;
@@ -52,6 +60,7 @@ public class GameController : MonoBehaviour
         m_CurrentSelected = null;
         IsAttackerTurn = true;
         m_KingPosition = 40;
+        m_Status = GameStatus.Ongoing;
     }
 
     #region Generate functions
@@ -292,6 +301,11 @@ public class GameController : MonoBehaviour
                 {
                     m_AttackerPos.Set(40, true);
                     m_KingPosition = index;
+                    if(index % 9 == 0 || index - 9 < 0 || index + 9 > 80 || (index + 1) % 9 == 0)
+                    {
+                        Debug.Log("King is escaped. Defender Win");
+                        m_Status = GameStatus.DefenderWin;
+                    }
                 }
                 m_DefenderPos.Set(m_CurrentSelected.PositionOnBoard, false);
                 m_DefenderPos.Set(index, true);
@@ -308,7 +322,14 @@ public class GameController : MonoBehaviour
         m_CurrentSelected = null;
         IsAttackerTurn = !IsAttackerTurn;
 
-        m_TurnText.text = IsAttackerTurn ? "Attacker" : "Defender";
+        if(m_Status != GameStatus.Ongoing)
+        {
+            m_TurnText.text = m_Status == GameStatus.AttackerWin ? "Attacker Win !!!" : "Defender Win !!!";
+        }
+        else
+        {
+            m_TurnText.text = IsAttackerTurn ? "Attacker" : "Defender";
+        }
     }
 
     private void CheckCapturePiece(sbyte position)
@@ -384,6 +405,7 @@ public class GameController : MonoBehaviour
                     }
 
                     Debug.Log("King is capture. Attacker Win");
+                    m_Status = GameStatus.AttackerWin;
                 }
 
 
@@ -396,4 +418,9 @@ public class GameController : MonoBehaviour
 
     }
     #endregion
+
+    public bool IsGameEnd()
+    {
+        return m_Status != GameStatus.Ongoing ? true : false;
+    }
 }

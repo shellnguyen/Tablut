@@ -83,7 +83,7 @@ public class PieceController : MonoBehaviour
     private void OnMouseDown()
     {
         Debug.Log(gameObject.name);
-        if(m_GameController.IsAttackerTurn == m_IsAttacker)
+        if(m_GameController.IsAttackerTurn == m_IsAttacker && !m_GameController.IsGameEnd())
         {
             if (!m_IsSelected)
             {
